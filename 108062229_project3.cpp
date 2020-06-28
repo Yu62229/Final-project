@@ -30,9 +30,9 @@ struct Point {
 
 map<int, Point> sav_table;
 int AIplayer;
-int val_board[8][8] = {{100, -8, 5, 5, 5, 5, -8, 100}, {-8, -100, 3, 3 ,3, 3, -100, -8},
+int val_board[8][8] = {{10000, -8, 5, 5, 5, 5, -8, 10000}, {-8, -10000, 3, 3 ,3, 3, -10000, -8},
 {5, 3, 3, 3, 3, 3, 3, 5}, {5, 3, 3, 3, 3, 3, 3, 5}, {5, 3, 3, 3, 3, 3, 3, 5}
-, {5, 3, 3, 3, 3, 3, 3, 5}, {-8, -100, 3, 3 ,3, 3, -100, -8}, {100, -8, 5, 5, 5, 5, -8, 100}};
+, {5, 3, 3, 3, 3, 3, 3, 5}, {-8, -10000, 3, 3 ,3, 3, -10000, -8}, {10000, -8, 5, 5, 5, 5, -8, 10000}};
 
 class GameBoard {
 public:
@@ -187,7 +187,8 @@ public:
             }
             final_v.insert(tmp_v + val_board[p.x][p.y]);
         }
-        return *final_v.rbegin();
+        if(cur_player == AIplayer) return *final_v.rbegin();
+        else return *final_v.begin();
     }/*
     void operator=(GameBoard rhs) {
         for (int i = 0; i < SIZE; i++) {
@@ -229,32 +230,32 @@ void read_valid_spots(std::ifstream& fin) {
 int minmax(GameBoard state, int depth, int alpha, int beta) {
     if(state.done) {
         if(state.winner == AIplayer) return 100;
-        else return -1;  
+        else return -100;  
     }
     if(!depth) {
         return state.get_sav();
     }
     if(state.cur_player == AIplayer) {
-        int max_sav = -1;
+        int max_sav = -INT_MAX;
         for(auto p : state.next_valid_spots) {
             GameBoard next_state = state;
             next_state.put_disc(p);
-            int max_val = minmax(next_state, depth - 1, alpha, beta);
+            int max_val = minmax(next_state, depth - 1, alpha, beta) + val_board[p.x][p.y];
             max_sav = max(max_sav, max_val);
-            if(depth == 3) sav_table[max_sav] = p;
+            if(depth == 4) sav_table[max_sav] = p;
             alpha = max(alpha, max_val);
             if(beta <= alpha) break;
         }
         return max_sav;
     }
     else {
-        int min_sav = 100;
+        int min_sav = INT_MAX;
         for(auto p : state.next_valid_spots) {
             GameBoard next_state = state;
             next_state.put_disc(p);
-            int min_val = minmax(next_state, depth - 1, alpha, beta);
+            int min_val = minmax(next_state, depth - 1, alpha, beta) + val_board[p.x][p.y];
             min_sav = min(min_sav, min_val);
-            if(depth == 3) sav_table[min_sav] = p;
+            if(depth == 4) sav_table[min_sav] = p;
             beta = min(beta, min_val);
             if(beta <= alpha) break;
         }
@@ -264,7 +265,7 @@ int minmax(GameBoard state, int depth, int alpha, int beta) {
 
 void write_valid_spot(std::ofstream& fout) {
     //int n_valid_spots = next_valid_spots.size();
-    int ord = minmax(state, 3, -INT_MAX, INT_MAX);
+    int ord = minmax(state, 4, -INT_MAX, INT_MAX);
     // Remember to flush the output to ensure the last action is written to file.
     Point target_p = sav_table[ord];
     fout << target_p.x << " " << target_p.y << std::endl;
