@@ -30,6 +30,9 @@ struct Point {
 
 map<int, Point> sav_table;
 int AIplayer;
+int val_board[8][8] = {{100, -8, 5, 5, 5, 5, -8, 100}, {-8, -100, 3, 3 ,3, 3, -100, -8},
+{5, 3, 3, 3, 3, 3, 3, 5}, {5, 3, 3, 3, 3, 3, 3, 5}, {5, 3, 3, 3, 3, 3, 3, 5}
+, {5, 3, 3, 3, 3, 3, 3, 5}, {-8, -100, 3, 3 ,3, 3, -100, -8}, {100, -8, 5, 5, 5, 5, -8, 100}};
 
 class GameBoard {
 public:
@@ -182,7 +185,7 @@ public:
                     test_p = test_p + dir;
                 }
             }
-            final_v.insert(tmp_v);
+            final_v.insert(tmp_v + val_board[p.x][p.y]);
         }
         return *final_v.rbegin();
     }/*
